@@ -1,0 +1,9 @@
+---
+title: "my resume"
+---
+
+Go back to [homepage](index.html)
+
+Hi, I’m Kate Jiao. I’m currently pursuing my M.S. in Biostatistics at Columbia University, specializing in Public Health Data Science. I completed my bachelor’s in Financial Engineering at the Central University of Finance and Economics, where I developed strong quantitative and analytical skills.
+
+I’ve interned in quantitative research roles at Morgan Stanley, VC at Profound Capital, and Aitopia AI, where I built data-driven trading models and conducted market analysis to support investment decisions. Through these experiences, I’ve developed solid programming and financial modeling abilities, as well as a strong interest in using quantitative insights to drive strategic decisions.

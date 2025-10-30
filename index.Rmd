@@ -1,21 +1,19 @@
 ---
-title: "Kate's professional website"
 output: 
-  html_document:
+  
     toc: true
     toc_float: true
-    theme: cerulean
 ---
 
 # This is Kate's professional website
 
 ![](https://media.giphy.com/media/drXGoW1iudhKw/giphy.gif)
 Hello, this is Kate. I am a student in MS biostatistics in mailman school. If you want to learn more about me, please go into my website. 
-My website is first set up for data science course[p8105](https://p8105.com/making_websites.html), and I will improve it whenever I have new experience. 
-This would be really fun!
+My website is first set up for data science course [p8105](https://p8105.com/making_websites.html), and I will improve it whenever I have new experience. 
 
 You can learn more about me through the page [resume](myresume.html)
 
 I also use [google](https://www.google.com/) for the data search.
 
 In order to show my ability of coding, refer to github (https://github.com/jj3564-jjy)  with full details.
+Thanks!

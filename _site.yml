@@ -1,0 +1,20 @@
+
+name: "Kate’s internet!"
+output_dir: "."
+
+navbar:
+  title: "Kate"
+  right:
+    - text: "Home"
+      href: index.html
+    - icon: fa-github
+      href: "https://github.com/jj3564-jjy"
+    - icon: fa-envelope
+      href: "mailto:jj3564@cumc.columbia.edu"
+  left:
+    - text: "Resume"
+      href: myresume.html
+
+output:
+  html_document:
+    theme: cerulean
