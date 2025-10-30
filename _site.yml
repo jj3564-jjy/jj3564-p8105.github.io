@@ -14,7 +14,9 @@ navbar:
   left:
     - text: "Resume"
       href: myresume.html
-
+    - text: "flexdashboard"
+      href: NY weather flexdashboard.html
+      
 output:
   html_document:
     theme: cerulean
