@@ -32,6 +32,14 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.11.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
 
@@ -288,19 +296,124 @@ library(tidyverse)
 library(p8105.datasets)</code></pre>
 <p>data upload</p>
 <pre class="r"><code>data(&quot;ny_noaa&quot;)
-head(&quot;ny_noaa&quot;)</code></pre>
-<pre><code>## [1] &quot;ny_noaa&quot;</code></pre>
+head(ny_noaa)</code></pre>
+<pre><code>## # A tibble: 6 × 7
+##   id          date        prcp  snow  snwd tmax  tmin 
+##   &lt;chr&gt;       &lt;date&gt;     &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 US1NYAB0001 2007-11-01    NA    NA    NA &lt;NA&gt;  &lt;NA&gt; 
+## 2 US1NYAB0001 2007-11-02    NA    NA    NA &lt;NA&gt;  &lt;NA&gt; 
+## 3 US1NYAB0001 2007-11-03    NA    NA    NA &lt;NA&gt;  &lt;NA&gt; 
+## 4 US1NYAB0001 2007-11-04    NA    NA    NA &lt;NA&gt;  &lt;NA&gt; 
+## 5 US1NYAB0001 2007-11-05    NA    NA    NA &lt;NA&gt;  &lt;NA&gt; 
+## 6 US1NYAB0001 2007-11-06    NA    NA    NA &lt;NA&gt;  &lt;NA&gt;</code></pre>
+<p>data cleaning</p>
+<pre class="r"><code>weather_df = ny_noaa |&gt;
+  mutate(
+    tmax = as.numeric(tmax) / 10, 
+    tmin = as.numeric(tmin) / 10,
+    prcp = as.numeric(prcp) / 10, 
+    year = as.numeric(format(date, &quot;%Y&quot;)),
+    month = as.numeric(format(date, &quot;%m&quot;))
+  ) |&gt;
+  drop_na(tmax, tmin, prcp)
+
+weather_df</code></pre>
+<pre><code>## # A tibble: 1,417,635 × 9
+##    id          date        prcp  snow  snwd  tmax  tmin  year month
+##    &lt;chr&gt;       &lt;date&gt;     &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1 USC00300023 1981-01-03   0       0     0 -12.2 -20.6  1981     1
+##  2 USC00300023 1981-01-05   0       0     0  -5.6 -17.8  1981     1
+##  3 USC00300023 1981-01-12   0       0     0 -12.2 -30.6  1981     1
+##  4 USC00300023 1981-01-13   0       0     0  -6.7 -28.9  1981     1
+##  5 USC00300023 1981-01-15   0       0     0  -5   -10.6  1981     1
+##  6 USC00300023 1981-01-17   0       0     0  -1.1 -15    1981     1
+##  7 USC00300023 1981-01-20   0       0     0   6.1  -6.7  1981     1
+##  8 USC00300023 1981-01-21   0       0     0   1.7 -10.6  1981     1
+##  9 USC00300023 1981-01-22   0       0     0   0.6  -5    1981     1
+## 10 USC00300023 1981-01-23  11.7   127    76   2.2  -4.4  1981     1
+## # ℹ 1,417,625 more rows</code></pre>
 <div id="chart-a" class="section level3">
 <h3>Chart A</h3>
+<p>comparision of monthly max min temperature</p>
+<pre class="r"><code>avg_temp = weather_df |&gt;
+group_by(year, month) |&gt;
+summarise(
+mean_tmax = mean(tmax, na.rm = TRUE),
+mean_tmin = mean(tmin, na.rm = TRUE)
+) |&gt;
+filter(year &gt;= 2010) |&gt;
+pivot_longer(cols = c(mean_tmax, mean_tmin),
+names_to = &quot;Temp_Type&quot;,
+values_to = &quot;Temperature&quot;) |&gt;
+plot_ly(
+x = ~month,
+y = ~Temperature,
+color = ~interaction(year, Temp_Type),
+type = &#39;scatter&#39;,
+mode = &#39;lines+markers&#39;
+) |&gt;
+layout(
+title = &quot;Average Monthly Max &amp; Min Temperature (≥2010)&quot;,
+xaxis = list(title = &quot;Month&quot;),
+yaxis = list(title = &quot;Temperature (°C)&quot;)
+)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;year&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>avg_temp</code></pre>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-686734eba30620bd61fe" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-686734eba30620bd61fe">{"x":{"visdat":{"72941dfc4970":["function () ","plotlyVisDat"]},"cur_data":"72941dfc4970","attrs":{"72941dfc4970":{"x":{},"y":{},"mode":"lines+markers","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Average Monthly Max & Min Temperature (≥2010)","xaxis":{"domain":[0,1],"automargin":true,"title":"Month"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Temperature (°C)"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12],"y":[-0.61985383678440931,-0.15398739380652235,9.3698610095098758,17.13843452082288,22.131071685447136,24.903055555555557,28.727072927072928,26.555311355311357,22.49266428935303,15.202630285152409,9.1073189926547737,-0.45161621344279118],"mode":"lines+markers","type":"scatter","name":"2010.mean_tmax","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12],"y":[-8.7669427527405599,-7.3040833104960265,-1.2201170446232625,3.246588058203713,8.6524814193239035,13.665530303030303,16.625574425574424,15.405934065934066,11.312226184411616,4.9150196656833822,-0.66605456453305356,-7.4645972293483842],"mode":"lines+markers","type":"scatter","name":"2010.mean_tmin","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
-<div id="column" class="section level2" data-width="350">
-<h2>Column</h2>
 <div id="chart-b" class="section level3">
 <h3>Chart B</h3>
+<p>Monthly Precipitation in 2010</p>
+<pre class="r"><code>monthly_prcp = weather_df |&gt;
+group_by(year, month) |&gt;
+summarise(mean_prcp = mean(prcp, na.rm = TRUE)) |&gt;
+filter(year == 2010)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;year&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>plot_ly(
+monthly_prcp,
+x = ~month,
+y = ~mean_prcp,
+type = &quot;bar&quot;,
+color = ~factor(month)
+) |&gt;
+layout(
+title = &quot;Average Monthly Precipitation (2010)&quot;,
+xaxis = list(title = &quot;Month&quot;),
+yaxis = list(title = &quot;Mean Precipitation (mm)&quot;)
+)</code></pre>
+<pre><code>## Warning in RColorBrewer::brewer.pal(max(N, 3L), &quot;Set2&quot;): n too large, allowed maximum for palette Set2 is 8
+## Returning the palette you asked for with that many colors
+## Warning in RColorBrewer::brewer.pal(max(N, 3L), &quot;Set2&quot;): n too large, allowed maximum for palette Set2 is 8
+## Returning the palette you asked for with that many colors</code></pre>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-72bf09752fb17cb236ec" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-72bf09752fb17cb236ec">{"x":{"visdat":{"7294609b4f95":["function () ","plotlyVisDat"]},"cur_data":"7294609b4f95","attrs":{"7294609b4f95":{"x":{},"y":{},"color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Average Monthly Precipitation (2010)","xaxis":{"domain":[0,1],"automargin":true,"title":"Month"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Mean Precipitation (mm)"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[1],"y":[2.0144214372716198],"type":"bar","name":"1","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[2],"y":[2.6491915593313236],"type":"bar","name":"2","marker":{"color":"rgba(211,164,122,1)","line":{"color":"rgba(211,164,122,1)"}},"textfont":{"color":"rgba(211,164,122,1)"},"error_y":{"color":"rgba(211,164,122,1)"},"error_x":{"color":"rgba(211,164,122,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[3],"y":[3.6342111680078029],"type":"bar","name":"3","marker":{"color":"rgba(229,147,127,1)","line":{"color":"rgba(229,147,127,1)"}},"textfont":{"color":"rgba(229,147,127,1)"},"error_y":{"color":"rgba(229,147,127,1)"},"error_x":{"color":"rgba(229,147,127,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[4],"y":[1.8079277471149022],"type":"bar","name":"4","marker":{"color":"rgba(156,159,194,1)","line":{"color":"rgba(156,159,194,1)"}},"textfont":{"color":"rgba(156,159,194,1)"},"error_y":{"color":"rgba(156,159,194,1)"},"error_x":{"color":"rgba(156,159,194,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[5],"y":[2.1488372093023256],"type":"bar","name":"5","marker":{"color":"rgba(194,150,199,1)","line":{"color":"rgba(194,150,199,1)"}},"textfont":{"color":"rgba(194,150,199,1)"},"error_y":{"color":"rgba(194,150,199,1)"},"error_x":{"color":"rgba(194,150,199,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[6],"y":[4.1008585858585862],"type":"bar","name":"6","marker":{"color":"rgba(223,155,177,1)","line":{"color":"rgba(223,155,177,1)"}},"textfont":{"color":"rgba(223,155,177,1)"},"error_y":{"color":"rgba(223,155,177,1)"},"error_x":{"color":"rgba(223,155,177,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[7],"y":[3.1063686313686314],"type":"bar","name":"7","marker":{"color":"rgba(182,204,108,1)","line":{"color":"rgba(182,204,108,1)"}},"textfont":{"color":"rgba(182,204,108,1)"},"error_y":{"color":"rgba(182,204,108,1)"},"error_x":{"color":"rgba(182,204,108,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[8],"y":[3.5005372405372404],"type":"bar","name":"8","marker":{"color":"rgba(209,217,69,1)","line":{"color":"rgba(209,217,69,1)"}},"textfont":{"color":"rgba(209,217,69,1)"},"error_y":{"color":"rgba(209,217,69,1)"},"error_x":{"color":"rgba(209,217,69,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[9],"y":[2.7380285277636269],"type":"bar","name":"9","marker":{"color":"rgba(253,215,61,1)","line":{"color":"rgba(253,215,61,1)"}},"textfont":{"color":"rgba(253,215,61,1)"},"error_y":{"color":"rgba(253,215,61,1)"},"error_x":{"color":"rgba(253,215,61,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[10],"y":[5.1767453294001964],"type":"bar","name":"10","marker":{"color":"rgba(237,202,125,1)","line":{"color":"rgba(237,202,125,1)"}},"textfont":{"color":"rgba(237,202,125,1)"},"error_y":{"color":"rgba(237,202,125,1)"},"error_x":{"color":"rgba(237,202,125,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[11],"y":[2.3710125918153202],"type":"bar","name":"11","marker":{"color":"rgba(212,190,160,1)","line":{"color":"rgba(212,190,160,1)"}},"textfont":{"color":"rgba(212,190,160,1)"},"error_y":{"color":"rgba(212,190,160,1)"},"error_x":{"color":"rgba(212,190,160,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[12],"y":[2.8075679835813236],"type":"bar","name":"12","marker":{"color":"rgba(179,179,179,1)","line":{"color":"rgba(179,179,179,1)"}},"textfont":{"color":"rgba(179,179,179,1)"},"error_y":{"color":"rgba(179,179,179,1)"},"error_x":{"color":"rgba(179,179,179,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="chart-c" class="section level3">
 <h3>Chart C</h3>
-</div>
+<p>precipitation comparision based on monthly data in 2009 and 2010</p>
+<pre class="r"><code>monthly_avg_prcp = weather_df |&gt;
+  filter(year %in% c(2009, 2010)) |&gt;
+  group_by(year, month) |&gt;
+  summarise(mean_prcp = mean(prcp, na.rm = TRUE), .groups = &quot;drop&quot;)
+
+
+plot_ly(
+  data = monthly_avg_prcp,
+  x = ~factor(year),      
+  y = ~mean_prcp,         
+  color = ~factor(year),
+  type = &quot;box&quot;
+) |&gt;
+layout(
+  title = &quot;Distribution of Monthly Average Precipitation (2009 vs 2010)&quot;,
+  xaxis = list(title = &quot;Year&quot;),
+  yaxis = list(title = &quot;Monthly Average Precipitation (mm)&quot;)
+)</code></pre>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-22a4de3d28c0986a37bf" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-22a4de3d28c0986a37bf">{"x":{"visdat":{"72942f2847da":["function () ","plotlyVisDat"]},"cur_data":"72942f2847da","attrs":{"72942f2847da":{"x":{},"y":{},"color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Distribution of Monthly Average Precipitation (2009 vs 2010)","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2009","2010"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Monthly Average Precipitation (mm)"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"fillcolor":"rgba(102,194,165,0.5)","x":["2009","2009","2009","2009","2009","2009","2009","2009","2009","2009","2009","2009"],"y":[2.0621307750568039,1.3990174672489082,2.2476816265807091,2.2511111111111113,3.6238940204180845,4.6291129643669446,4.3845876412599178,3.9792079207920792,2.0982526210683976,3.5546031000469704,1.6726000491038546,3.1920833333333332],"type":"box","name":"2009","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(141,160,203,0.5)","x":["2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010","2010"],"y":[2.0144214372716198,2.6491915593313236,3.6342111680078029,1.8079277471149022,2.1488372093023256,4.1008585858585862,3.1063686313686314,3.5005372405372404,2.7380285277636269,5.1767453294001964,2.3710125918153202,2.8075679835813236],"type":"box","name":"2010","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 
 
