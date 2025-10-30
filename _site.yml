@@ -15,7 +15,7 @@ navbar:
     - text: "Resume"
       href: myresume.html
     - text: "flexdashboard"
-      href: NY weather flexdashboard.html
+      href: NY-weather-flexdashboard.html
       
 output:
   html_document:
