@@ -8,6 +8,17 @@ output:
 # This is Kate's professional website
 
 ![](https://media.giphy.com/media/drXGoW1iudhKw/giphy.gif)
+
+
+
+
+
+
+
+
+
+
+
 Hello, this is Kate. I am a student in MS biostatistics in mailman school. If you want to learn more about me, please go into my website. 
 My website is first set up for data science course [p8105](https://p8105.com/making_websites.html), and I will improve it whenever I have new experience. 
 
